@@ -58,7 +58,7 @@ class Post:
         print(message)
         print(self.link)
         notif_data = [self.title, self.link]
-        subprocess.Popen(bot_config.notify_command + notif_data)
+        subprocess.Popen(bot_config.notify_command.split() + notif_data)
 
 def search_sub(subreddit_name):
     sub = Subreddit(subreddit_name)
