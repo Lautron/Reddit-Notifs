@@ -1,5 +1,10 @@
-import requests, json, pprint, time, threading, subprocess
+import requests
+import json
+import time
+import threading
+import subprocess
 from config import bot_config
+import os
 
 
 class Subreddit:
@@ -68,7 +73,8 @@ class Post:
         return False
 
     def notify(self, sub_name):
-        message = f"New post on r/{sub_name}:\n{self.title}\nPosted {self.time_since_creation()} ago\n{self.link}\n"
+        message = f"New post on r/{sub_name}:\n{self.title}\nPosted {
+            self.time_since_creation()} ago\n{self.link}\n"
         print(message)
         notif_data = [self.title, self.link]
         subprocess.Popen(bot_config.notify_command.split() + notif_data)
@@ -76,10 +82,14 @@ class Post:
 
 def search_sub(subreddit_name):
     sub = Subreddit(subreddit_name)
-    is_valid = lambda post: post.title not in sub.seen_posts and post.has_keyword()
+    def is_valid(
+        post): return post.title not in sub.seen_posts and post.has_keyword()
     print(f"Started watching for new posts on r/{sub.name}...")
     while True:
         print(f"Searching r/{sub.name}...\n")
+        if os.environ.get("STOP_REDDIT_NOTIFS"):
+            print(f"Stopped watching for new posts on r/{sub.name}...")
+            return
         for post in sub.get_posts():
             if is_valid(post):
                 sub.seen_posts.add(post.title)
